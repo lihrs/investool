@@ -362,10 +362,124 @@ Web 服务使用的是[pink-lady 项目模板](https://github.com/axiaoxin-com/p
 ```
 
 
+## 本地运行与部署指南
+
+### 环境要求
+
+- Go 1.20 或更高版本
+- 配置好 GOPATH 环境变量
+
+### 本地运行
+
+1. 克隆代码到本地
+
+```bash
+git clone https://github.com/axiaoxin-com/investool.git
+cd investool
+```
+
+2. 安装依赖
+
+```bash
+go mod download
+```
+
+3. 运行 Web 服务
+
+```bash
+go run main.go webserver -c ./config.toml
+```
+
+或者直接使用编译好的二进制文件：
+
+```bash
+./investool webserver -c ./config.toml
+```
+
+默认情况下，服务将在 http://localhost:4869 上运行。
+
+### 命令行工具使用
+
+查看可用命令：
+
+```bash
+./investool --help
+```
+
+#### 常用命令示例
+
+- 股票检测器：
+
+```bash
+./investool checker -s 000001
+```
+
+- 导出筛选结果：
+
+```bash
+./investool exportor -t json
+```
+
+- 获取指数成分股：
+
+```bash
+./investool index -c 000905 -s
+```
+
+### 编译部署
+
+1. 编译二进制文件
+
+```bash
+# 使用build.sh脚本编译
+./build.sh
+
+# 或者手动编译
+CGO_ENABLED=0 go build -ldflags "-X github.com/axiaoxin-com/investool/version.Version=`TZ=Asia/Shanghai date +%y%m%d%H%M`"
+```
+
+2. Docker 部署
+
+```bash
+# 构建Docker镜像
+docker build -t investool .
+
+# 运行Docker容器
+docker run -d -p 4869:4869 -v $(pwd)/config.toml:/app/config.toml --name investool investool
+```
+
+3. 使用 supervisor 管理服务（推荐生产环境）
+
+安装 supervisor：
+
+```bash
+pip install supervisor
+```
+
+创建 supervisor 配置文件 `/etc/supervisor/conf.d/investool.conf`：
+
+```ini
+[program:investool]
+command=/path/to/investool webserver -c /path/to/config.toml
+directory=/path/to/investool
+autostart=true
+autorestart=true
+stderr_logfile=/var/log/investool.err.log
+stdout_logfile=/var/log/investool.out.log
+```
+
+启动服务：
+
+```bash
+supervisorctl reread
+supervisorctl update
+supervisorctl start investool
+```
+
 ## 最后
 
 程序输出的所有数据与信息仅供参考，不构成投资建议。再次强调，本程序代码仅供本人学习研究使用，如作他用所承受的法律责任一概与作者无关（下载使用即代表你同意上述观点）。
 
 祝大家投资顺利。
 
-[![Stargazers over time](https://starchart.cc/axiaoxin-com/investool.svg)](https://githuv.com/axiaoxin-com/investool)
+[![Stargazers over time](https://starchart.cc/axiaoxin-com/investool.svg)](https://github.com/axiaoxin-com/investool)
